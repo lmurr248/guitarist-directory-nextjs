@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Listing } from "../../types";
+import { ListingType } from "../../types";
 import { Typography, Container, Divider } from "@mui/material";
 import ListingCard from "./components/UI/ListingCard";
 import "../app/globals.css";
@@ -10,7 +10,7 @@ import Head from "next/head";
 import { metadata } from "./metadata"; // Ensure this path is correct
 
 export default function Home() {
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [listings, setListings] = useState<ListingType[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInstrument, setSelectedInstrument] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState<string>("");
@@ -22,7 +22,7 @@ export default function Home() {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const data: Listing[] = await response.json();
+        const data: ListingType[] = await response.json();
         setListings(data);
       } catch (error) {
         console.error("Error fetching listings:", error);
@@ -45,10 +45,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>{String(metadata.title ?? "Default Title")}</title>
+        <title>{metadata.title ?? "Default Title"}</title>
         <meta
           name="description"
-          content={String(metadata.description ?? "Default description")}
+          content={metadata.description ?? "Default description"}
         />
       </Head>
       <div>
@@ -89,7 +89,7 @@ export default function Home() {
             {loading
               ? [1, 2, 3].map((key) => (
                   <div key={key}>
-                    <ListingCard listing={{} as Listing} loading={true} />
+                    <ListingCard listing={{} as ListingType} loading={true} />
                   </div>
                 ))
               : filteredListings.map((listing) => (

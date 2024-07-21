@@ -10,11 +10,11 @@ import Avatar from "@mui/material/Avatar";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Link from "next/link";
-import { Listing } from "../../../../types";
+import { ListingType } from "../../../../types";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 interface ListingCardProps {
-  listing: Listing;
+  listing: ListingType;
   loading: boolean;
 }
 

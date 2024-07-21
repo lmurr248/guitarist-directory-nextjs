@@ -1,5 +1,3 @@
-import { Listing } from "../../../../types";
-import { query } from "@/lib/db";
 import {
   Container,
   Typography,
@@ -8,6 +6,8 @@ import {
   Stack,
   CardMedia,
 } from "@mui/material";
+import { query } from "@/lib/db";
+import { ListingType } from "../../../../types"; // Ensure correct path
 import BackButton from "@/app/components/UI/BackButton";
 
 interface ListingPageProps {
@@ -16,7 +16,7 @@ interface ListingPageProps {
   };
 }
 
-interface ListingType {
+interface ListingRow {
   id: number;
   title: string;
   tagline: string;
@@ -26,9 +26,7 @@ interface ListingType {
   instruments: string[];
 }
 
-export default async function ListingPage({ params }: ListingPageProps) {
-  const { id } = params;
-
+async function getListingData(id: string): Promise<ListingType | null> {
   const result = await query(
     `
     SELECT 
@@ -43,7 +41,42 @@ export default async function ListingPage({ params }: ListingPageProps) {
     [id]
   );
 
-  const listing: ListingType = result.rows[0];
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  const row = result.rows[0];
+
+  // Debug log to verify the structure of row
+  console.log("Row data:", row);
+
+  // Manually constructing the object to ensure type safety
+  const listing: ListingType = {
+    id: row.id,
+    title: row.title,
+    tagline: row.tagline,
+    banner_image: row.banner_image,
+    main_image: row.main_image,
+    location: row.location,
+    instruments: row.instruments,
+  };
+
+  return listing;
+}
+
+export default async function ListingPage({ params }: ListingPageProps) {
+  const listing = await getListingData(params.id);
+
+  if (!listing) {
+    return (
+      <Container maxWidth="md">
+        <Typography variant="h3" component="h1" gutterBottom>
+          Listing not found
+        </Typography>
+        <BackButton />
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="md">
@@ -65,7 +98,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
         image={listing.banner_image}
       />
       <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-        {listing.instruments.map((instrument: string, index: number) => (
+        {listing.instruments.map((instrument, index) => (
           <Chip key={index} label={instrument} color="primary" size="small" />
         ))}
       </Stack>
@@ -78,11 +111,8 @@ export default async function ListingPage({ params }: ListingPageProps) {
 }
 
 export async function generateStaticParams() {
-  const result = await query(`
-    SELECT id FROM listings
-  `);
-
-  return result.rows.map((listing: { id: number }) => ({
-    id: listing.id.toString(),
+  const result = await query("SELECT id FROM listings");
+  return result.rows.map((row: { id: number }) => ({
+    id: row.id.toString(),
   }));
 }
