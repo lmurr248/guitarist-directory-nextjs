@@ -18,6 +18,7 @@
 
 body {
   color: rgb(var(--foreground-rgb));
+  margin: 0;
 }
 
 @layer utilities {
@@ -62,4 +63,14 @@ li {
 
 .align-center {
   text-align: center;
+}
+
+footer {
+  background-color: #f3f3f3;
+  margin-top: 6rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  border-top: solid 1px #d2d2d2;
 }

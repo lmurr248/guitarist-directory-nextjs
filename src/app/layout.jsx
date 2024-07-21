@@ -1,4 +1,5 @@
 import HeaderMain from "./components/header/HeaderMain";
+import FooterMain from "./components/footer/FooterMain";
 
 export default function RootLayout({ children }) {
   return (
@@ -6,6 +7,7 @@ export default function RootLayout({ children }) {
       <body>
         <HeaderMain />
         {children}
+        <FooterMain />
       </body>
     </html>
   );

@@ -1,3 +1,4 @@
+import { NextApiRequest, NextApiResponse } from "next";
 const { query } = require("../../lib/db.cjs");
 
 export default async function handler(req, res) {
