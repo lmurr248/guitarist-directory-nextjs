@@ -1,10 +1,6 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { query } from "@/lib/db";
+const { query } = require("../../lib/db.cjs");
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req, res) {
   try {
     const result = await query("SELECT DISTINCT location FROM listings");
     res.status(200).json(result.rows);

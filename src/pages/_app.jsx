@@ -1,4 +1,3 @@
-import { AppProps } from "next/app";
 import Head from "next/head";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import "@fontsource/roboto/300.css";
@@ -14,7 +13,7 @@ const theme = createTheme({
   },
 });
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+export default function MyApp({ Component, pageProps }) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

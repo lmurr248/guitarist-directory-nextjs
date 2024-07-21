@@ -1,10 +1,6 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { query } from "../../lib/db.js";
+const { query } = require("../../lib/db.cjs");
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req, res) {
   try {
     const result = await query(`
       SELECT 
@@ -15,7 +11,6 @@ export default async function handler(
       LEFT JOIN instruments i ON li.instrument_id = i.id
       GROUP BY l.id
     `);
-
     res.status(200).json(result.rows);
   } catch (error) {
     const errorMessage =

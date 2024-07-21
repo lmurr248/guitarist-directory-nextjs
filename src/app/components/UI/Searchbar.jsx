@@ -8,21 +8,14 @@ import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 
-interface SearchbarProps {
-  setSelectedInstrument: (instrument: string) => void;
-  setSelectedLocation: (location: string) => void;
-  selectedInstrument: string;
-  selectedLocation: string;
-}
-
 export default function Searchbar({
   setSelectedInstrument,
   setSelectedLocation,
   selectedInstrument,
   selectedLocation,
-}: SearchbarProps) {
-  const [instruments, setInstruments] = React.useState<string[]>([]);
-  const [locations, setLocations] = React.useState<string[]>([]);
+}) {
+  const [instruments, setInstruments] = React.useState([]);
+  const [locations, setLocations] = React.useState([]);
   const [loadingInstruments, setLoadingInstruments] = React.useState(true);
   const [loadingLocations, setLoadingLocations] = React.useState(true);
 
@@ -30,14 +23,14 @@ export default function Searchbar({
     async function fetchInstruments() {
       const response = await fetch("/api/instruments");
       const data = await response.json();
-      setInstruments(data.map((instrument: any) => instrument.name));
+      setInstruments(data.map((instrument) => instrument.name));
       setLoadingInstruments(false);
     }
 
     async function fetchLocations() {
       const response = await fetch("/api/locations");
       const data = await response.json();
-      setLocations(data.map((location: any) => location.location));
+      setLocations(data.map((location) => location.location));
       setLoadingLocations(false);
     }
 

@@ -10,15 +10,9 @@ import Avatar from "@mui/material/Avatar";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Link from "next/link";
-import { ListingType } from "../../../../types";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-interface ListingCardProps {
-  listing: ListingType;
-  loading: boolean;
-}
-
-export default function ListingCard({ listing, loading }: ListingCardProps) {
+export default function ListingCard({ listing, loading }) {
   const maxChips = 2;
   const instruments = listing?.instruments ?? []; // Default to an empty array if undefined
   const extraInstruments = instruments.length - maxChips;
@@ -98,7 +92,7 @@ export default function ListingCard({ listing, loading }: ListingCardProps) {
         ) : (
           <Link href={`/listing/${listing.id}`} passHref>
             <Button size="small" component="a">
-              View Profile
+              View Teacher
             </Button>
           </Link>
         )}

@@ -1,11 +1,6 @@
 import HeaderMain from "./components/header/HeaderMain";
-import NavMenu from "./components/header/navMenu";
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>

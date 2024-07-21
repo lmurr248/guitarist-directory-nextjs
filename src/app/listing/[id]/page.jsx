@@ -6,27 +6,10 @@ import {
   Stack,
   CardMedia,
 } from "@mui/material";
-import { query } from "@/lib/db";
-import { ListingType } from "../../../../types"; // Ensure correct path
-import BackButton from "@/app/components/UI/BackButton";
+import { query } from "../../../lib/db.cjs";
+import BackButton from "../../components/UI/BackButton";
 
-interface ListingPageProps {
-  params: {
-    id: string;
-  };
-}
-
-interface ListingRow {
-  id: number;
-  title: string;
-  tagline: string;
-  banner_image: string;
-  main_image: string;
-  location: string;
-  instruments: string[];
-}
-
-async function getListingData(id: string): Promise<ListingType | null> {
+async function getListingData(id) {
   const result = await query(
     `
     SELECT 
@@ -51,7 +34,7 @@ async function getListingData(id: string): Promise<ListingType | null> {
   console.log("Row data:", row);
 
   // Manually constructing the object to ensure type safety
-  const listing: ListingType = {
+  const listing = {
     id: row.id,
     title: row.title,
     tagline: row.tagline,
@@ -64,7 +47,7 @@ async function getListingData(id: string): Promise<ListingType | null> {
   return listing;
 }
 
-export default async function ListingPage({ params }: ListingPageProps) {
+export default async function ListingPage({ params }) {
   const listing = await getListingData(params.id);
 
   if (!listing) {
@@ -112,7 +95,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
 export async function generateStaticParams() {
   const result = await query("SELECT id FROM listings");
-  return result.rows.map((row: { id: number }) => ({
+  return result.rows.map((row) => ({
     id: row.id.toString(),
   }));
 }

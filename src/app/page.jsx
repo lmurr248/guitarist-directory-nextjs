@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ListingType } from "../../types";
 import { Typography, Container, Divider } from "@mui/material";
 import ListingCard from "./components/UI/ListingCard";
 import "../app/globals.css";
@@ -10,10 +9,10 @@ import Head from "next/head";
 import { metadata } from "./metadata"; // Ensure this path is correct
 
 export default function Home() {
-  const [listings, setListings] = useState<ListingType[]>([]);
+  const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedInstrument, setSelectedInstrument] = useState<string>("");
-  const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [selectedInstrument, setSelectedInstrument] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
 
   useEffect(() => {
     async function fetchListings() {
@@ -22,7 +21,7 @@ export default function Home() {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const data: ListingType[] = await response.json();
+        const data = await response.json();
         setListings(data);
       } catch (error) {
         console.error("Error fetching listings:", error);
@@ -89,7 +88,7 @@ export default function Home() {
             {loading
               ? [1, 2, 3].map((key) => (
                   <div key={key}>
-                    <ListingCard listing={{} as ListingType} loading={true} />
+                    <ListingCard listing={{}} loading={true} />
                   </div>
                 ))
               : filteredListings.map((listing) => (
