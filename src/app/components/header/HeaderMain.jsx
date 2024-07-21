@@ -21,7 +21,10 @@ import Image from "next/image";
 const logoBlue = "gtnm-logo-blue.svg";
 const logoWhite = "/gtnm-logo-white.svg";
 
-const pages = ["Find a Teacher"];
+const pages = [
+  { text: "Find a Teacher", href: "/search" },
+  { text: "Add a Listing", href: "/add-listing" },
+];
 const loggedInSettings = ["Profile", "Account", "Dashboard", "Logout"];
 const loggedOutSettings = [
   { text: "Log In", href: "/login" },
@@ -59,14 +62,14 @@ function ResponsiveAppBar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Link href="/">
+          <Link href="/" passHref>
             <Image
-              sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
+              style={{ display: { xs: "none", md: "flex" }, marginRight: 8 }}
               src={logoWhite}
               alt="GTNM Logo White"
               width={120}
               height={60}
-            ></Image>
+            />
           </Link>
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
@@ -98,8 +101,15 @@ function ResponsiveAppBar() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem key={page.text} onClick={handleCloseNavMenu}>
+                  <Link href={page.href} passHref>
+                    <Typography
+                      textAlign="center"
+                      sx={{ color: "white", textDecoration: "none" }}
+                    >
+                      {page.text}
+                    </Typography>
+                  </Link>
                 </MenuItem>
               ))}
             </Menu>
@@ -108,11 +118,19 @@ function ResponsiveAppBar() {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
-                key={page}
+                key={page.text}
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-                {page}
+                <Link href={page.href} passHref>
+                  <Typography
+                    component="a"
+                    textAlign="center"
+                    sx={{ color: "white", textDecoration: "none" }}
+                  >
+                    {page.text}
+                  </Typography>
+                </Link>
               </Button>
             ))}
           </Box>
@@ -149,7 +167,10 @@ function ResponsiveAppBar() {
                   >
                     {setting.href ? (
                       <Link href={setting.href} passHref>
-                        <Typography textAlign="center">
+                        <Typography
+                          textAlign="center"
+                          sx={{ color: "black", textDecoration: "none" }}
+                        >
                           {setting.text}
                         </Typography>
                       </Link>

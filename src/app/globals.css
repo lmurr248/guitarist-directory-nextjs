@@ -74,3 +74,8 @@ footer {
   padding: 1rem;
   border-top: solid 1px #d2d2d2;
 }
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+}
