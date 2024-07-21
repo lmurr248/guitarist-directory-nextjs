@@ -16,13 +16,23 @@ interface ListingPageProps {
   };
 }
 
+interface ListingType {
+  id: number;
+  title: string;
+  tagline: string;
+  banner_image: string;
+  main_image: string;
+  location: string;
+  instruments: string[];
+}
+
 export default async function ListingPage({ params }: ListingPageProps) {
   const { id } = params;
 
   const result = await query(
     `
     SELECT 
-      l.id, l.title, l.description, l.tagline, l.banner_image, l.main_image, l.location,
+      l.id, l.title, l.tagline, l.banner_image, l.main_image, l.location,
       COALESCE(json_agg(i.name) FILTER (WHERE i.name IS NOT NULL), '[]') AS instruments
     FROM listings l
     LEFT JOIN listing_instruments li ON l.id = li.listing_id
@@ -33,7 +43,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
     [id]
   );
 
-  const listing = result.rows[0];
+  const listing: ListingType = result.rows[0];
 
   return (
     <Container maxWidth="md">
@@ -55,18 +65,12 @@ export default async function ListingPage({ params }: ListingPageProps) {
         image={listing.banner_image}
       />
       <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-        {listing.instruments.map((instrument, index) => (
+        {listing.instruments.map((instrument: string, index: number) => (
           <Chip key={index} label={instrument} color="primary" size="small" />
         ))}
       </Stack>
       <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
         Location: {listing.location}
-      </Typography>
-      <Typography variant="h6" sx={{ mt: 2 }}>
-        About
-      </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-        {listing.description}
       </Typography>
       <BackButton />
     </Container>
@@ -78,7 +82,7 @@ export async function generateStaticParams() {
     SELECT id FROM listings
   `);
 
-  return result.rows.map((listing) => ({
+  return result.rows.map((listing: { id: number }) => ({
     id: listing.id.toString(),
   }));
 }

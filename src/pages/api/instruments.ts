@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { query } from "@/lib/db";
+import { query } from "../../lib/db";
 
 export default async function handler(
   req: NextApiRequest,
@@ -9,9 +9,10 @@ export default async function handler(
     const result = await query("SELECT * FROM instruments");
     res.status(200).json(result.rows);
   } catch (error) {
-    console.error("Database query error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
     res
       .status(500)
-      .json({ message: "Internal Server Error", error: error.message });
+      .json({ message: "Internal Server Error", error: errorMessage });
   }
 }

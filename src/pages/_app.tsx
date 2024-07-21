@@ -6,7 +6,7 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import "../app/globals.css";
-import { metadata } from "../app/metadata";
+import { metadata } from "../app/metadata"; // Ensure this path is correct
 
 const theme = createTheme({
   typography: {
@@ -19,10 +19,16 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Head>
-        <title>{metadata.title || "Default Title"}</title>
+        <title>
+          {metadata.title ? String(metadata.title) : "Default Title"}
+        </title>
         <meta
           name="description"
-          content={metadata.description || "Default description"}
+          content={
+            metadata.description
+              ? String(metadata.description)
+              : "Default description"
+          }
         />
       </Head>
       <Component {...pageProps} />

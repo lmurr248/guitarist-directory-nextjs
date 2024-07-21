@@ -18,9 +18,10 @@ export default async function handler(
 
     res.status(200).json(result.rows);
   } catch (error) {
-    console.error("Database query error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
     res
       .status(500)
-      .json({ message: "Internal Server Error", error: error.message });
+      .json({ message: "Internal Server Error", error: errorMessage });
   }
 }
