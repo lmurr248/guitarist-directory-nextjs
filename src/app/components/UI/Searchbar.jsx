@@ -52,18 +52,18 @@ export default function Searchbar({
       display="inline-flex"
       justifyContent="center"
       alignItems="center"
-      bgcolor="#f5f5f530"
+      bgcolor="#fff"
       padding={2}
       gap={2}
     >
-      <FormControl sx={{ m: 1, minWidth: 120 }}>
+      <FormControl sx={{ m: 1, minWidth: 200 }}>
         <NativeSelect
           value={selectedInstrument}
           inputProps={{
             name: "instrument",
             id: "instrument-native",
           }}
-          sx={{ backgroundColor: "white", padding: 0.5 }}
+          sx={{ padding: 0.5 }}
           onChange={(e) => setSelectedInstrument(e.target.value)}
         >
           <option value="" disabled>
@@ -76,7 +76,7 @@ export default function Searchbar({
           ))}
         </NativeSelect>
       </FormControl>
-      <FormControl sx={{ m: 1, minWidth: 120 }}>
+      <FormControl sx={{ m: 1, minWidth: 200 }}>
         <NativeSelect
           value={selectedLocation}
           inputProps={{

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Typography, Container, Divider } from "@mui/material";
+import { Typography, Container, Divider, Grid } from "@mui/material";
 import ListingCard from "./components/UI/ListingCard";
 import "../app/globals.css";
 import Searchbar from "./components/UI/Searchbar";
@@ -84,7 +84,7 @@ export default function Home() {
           </Container>
         </div>
         <Container maxWidth="lg">
-          <div className="listing-card-container">
+          {/* <div className="listing-card-container">
             {loading
               ? [1, 2, 3].map((key) => (
                   <div key={key}>
@@ -96,7 +96,25 @@ export default function Home() {
                     <ListingCard listing={listing} loading={false} />
                   </div>
                 ))}
-          </div>
+          </div> */}
+          <Grid
+            container
+            columns={{ xs: 1, sm: 8, md: 12 }}
+            rowSpacing={4}
+            columnSpacing={0}
+          >
+            {loading
+              ? [1, 2, 3].map((key) => (
+                  <Grid item xs={1} sm={4} md={4} key={key}>
+                    <ListingCard listing={{}} loading={true} />
+                  </Grid>
+                ))
+              : filteredListings.map((listing) => (
+                  <Grid item xs={1} sm={4} md={4} key={listing.id}>
+                    <ListingCard listing={listing} loading={false} />
+                  </Grid>
+                ))}
+          </Grid>
         </Container>
       </div>
     </>
