@@ -19,11 +19,18 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import Skeleton from "@mui/material/Skeleton";
 import PricingCard from "./PricingCard";
-import Image from "next/image";
+import dynamic from "next/dynamic";
+import { useStripe } from "@stripe/react-stripe-js";
+import { useRouter } from "next/navigation";
+
+// Dynamically import Image component with no SSR
+const Image = dynamic(() => import("next/image"), { ssr: false });
 
 export default function AddListingForm() {
   const [formStep, setFormStep] = useState(1);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const stripe = useStripe();
+  const router = useRouter();
 
   const [form, setForm] = useState({
     title: "",
@@ -40,11 +47,44 @@ export default function AddListingForm() {
     atStudents: false,
     mainImage: null,
     bannerImage: null,
+    onlineLessonPrice60: 0,
+    onlineLessonPrice30: 0,
+    atTeachersPrice60: 0,
+    atTeachersPrice30: 0,
+    atStudentsPrice60: 0,
+    atStudentsPrice30: 0,
   });
   const [titleLength, setTitleLength] = useState(0);
   const maxTitleLength = 35;
   const [taglineLength, setTaglineLength] = useState(0);
   const maxTaglineLength = 55;
+
+  // Populate form fields with query parameters
+  // useEffect(() => {
+  //   if (router.isReady && router.query) {
+  //     const query = router.query;
+  //     setForm((prevForm) => ({
+  //       ...prevForm,
+  //       title: query.title || "",
+  //       description: query.description || "",
+  //       tagline: query.tagline || "",
+  //       website: query.website || "",
+  //       location: query.location || "",
+  //       instruments: query.instruments ? query.instruments.split(",") : [],
+  //       email: query.email || "",
+  //       phone: query.phone || "",
+  //       package: query.package || "",
+  //       onlineLessons: query.onlineLessons === "true",
+  //       atTeachers: query.atTeachers === "true",
+  //       atStudents: query.atStudents === "true",
+  //     }));
+
+  //     if (query.package) {
+  //       setSelectedPackage(Number(query.package));
+  //       setFormStep(2);
+  //     }
+  //   }
+  // }, [router.isReady, router.query]);
 
   // Package card data
   const [packages, setPackages] = useState([]);
@@ -123,9 +163,29 @@ export default function AddListingForm() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(form);
+    const selectedPackageDetails = packages.find(
+      (pkg) => pkg.id === selectedPackage
+    );
+    const packagePrice = selectedPackageDetails.price;
+
+    const response = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        packageId: selectedPackage,
+        price: packagePrice * 100,
+        ...form,
+      }),
+    });
+
+    const session = await response.json();
+    if (session.id) {
+      stripe.redirectToCheckout({ sessionId: session.id });
+    }
   };
 
   const handleSelectPackage = (packageId) => {
@@ -457,42 +517,121 @@ export default function AddListingForm() {
               <Typography variant="subtitle1">
                 Where do you teach your lessons?
               </Typography>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={form.onlineLessons}
-                    onChange={handleSwitchChange}
-                    name="onlineLessons"
-                  />
-                }
-                label="Online"
-              />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={form.atTeachers}
-                    onChange={handleSwitchChange}
-                    name="atTeachers"
-                  />
-                }
-                label="At teachers"
-              />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={form.atStudents}
-                    onChange={handleSwitchChange}
-                    name="atStudents"
-                  />
-                }
-                label="At students"
-              />
+              <Stack direction="row" spacing={2}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={form.onlineLessons}
+                      onChange={handleSwitchChange}
+                      name="onlineLessons"
+                    />
+                  }
+                  label="Online"
+                  sx={{ width: "17ch" }}
+                />
+                {form.onlineLessons === true ? (
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="subtitle2">Pricing (£):</Typography>
+                    <TextField
+                      id="onlineLessonPrice60"
+                      name="onlineLessonPrice60"
+                      label="60 minutes"
+                      type="number"
+                      margin="normal"
+                      sx={{ width: "15ch" }}
+                      onChange={handleChange}
+                    />
+                    <TextField
+                      id="onlineLessonPrice30"
+                      name="onlineLessonPrice30"
+                      label="30 minutes"
+                      type="number"
+                      margin="normal"
+                      sx={{ width: "15ch" }}
+                      onChange={handleChange}
+                    />
+                  </Stack>
+                ) : null}
+              </Stack>
+              <Stack direction="row" spacing={2}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={form.atTeachers}
+                      onChange={handleSwitchChange}
+                      name="atTeachers"
+                    />
+                  }
+                  label="At teachers"
+                  sx={{ width: "17ch" }}
+                />
+                {form.atTeachers === true ? (
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="subtitle2">Pricing (£):</Typography>
+                    <TextField
+                      id="atTeachersPrice60"
+                      name="atTeachersPrice60"
+                      label="60 minutes"
+                      type="number"
+                      margin="normal"
+                      sx={{ width: "15ch" }}
+                      onChange={handleChange}
+                    />
+                    <TextField
+                      id="atTeachersPrice30"
+                      name="atTeachersPrice30"
+                      label="30 minutes"
+                      type="number"
+                      margin="normal"
+                      sx={{ width: "15ch" }}
+                      onChange={handleChange}
+                    />
+                  </Stack>
+                ) : null}
+              </Stack>
+              <Stack direction="row" spacing={2}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={form.atStudents}
+                      onChange={handleSwitchChange}
+                      name="atStudents"
+                    />
+                  }
+                  label="At students"
+                  sx={{ width: "17ch" }}
+                />
+                {form.atStudents === true ? (
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="subtitle2">Pricing (£):</Typography>
+                    <TextField
+                      id="atStudentsPrice60"
+                      name="atStudentsPrice60"
+                      label="60 minutes"
+                      type="number"
+                      margin="normal"
+                      sx={{ width: "15ch" }}
+                      onChange={handleChange}
+                    />
+                    <TextField
+                      id="atStudentsPrice30"
+                      name="atStudentsPrice30"
+                      label="30 minutes"
+                      type="number"
+                      margin="normal"
+                      sx={{ width: "15ch" }}
+                      onChange={handleChange}
+                    />
+                  </Stack>
+                ) : null}
+              </Stack>
               <Typography variant="h6" gutterBottom sx={{ paddingTop: 7 }}>
                 How can students contact you?
               </Typography>
               <TextField
                 id="email"
                 name="email"
+                type="email"
                 fullWidth
                 label="Email"
                 margin="normal"
@@ -504,6 +643,7 @@ export default function AddListingForm() {
               <TextField
                 id="website"
                 name="website"
+                type="url"
                 fullWidth
                 label="Website"
                 margin="normal"
