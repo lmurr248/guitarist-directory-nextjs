@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import PhotoCamera from "@material-ui/icons/PhotoCamera";
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
 
 export default function AddListingForm() {
   const [form, setForm] = useState({
