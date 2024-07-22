@@ -59,33 +59,6 @@ export default function AddListingForm() {
   const [taglineLength, setTaglineLength] = useState(0);
   const maxTaglineLength = 55;
 
-  // Populate form fields with query parameters
-  // useEffect(() => {
-  //   if (router.isReady && router.query) {
-  //     const query = router.query;
-  //     setForm((prevForm) => ({
-  //       ...prevForm,
-  //       title: query.title || "",
-  //       description: query.description || "",
-  //       tagline: query.tagline || "",
-  //       website: query.website || "",
-  //       location: query.location || "",
-  //       instruments: query.instruments ? query.instruments.split(",") : [],
-  //       email: query.email || "",
-  //       phone: query.phone || "",
-  //       package: query.package || "",
-  //       onlineLessons: query.onlineLessons === "true",
-  //       atTeachers: query.atTeachers === "true",
-  //       atStudents: query.atStudents === "true",
-  //     }));
-
-  //     if (query.package) {
-  //       setSelectedPackage(Number(query.package));
-  //       setFormStep(2);
-  //     }
-  //   }
-  // }, [router.isReady, router.query]);
-
   // Package card data
   const [packages, setPackages] = useState([]);
   const [loadingPackages, setLoadingPackages] = useState(true);
@@ -106,6 +79,13 @@ export default function AddListingForm() {
     };
     fetchPackages();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (form.mainImagePreview) URL.revokeObjectURL(form.mainImagePreview);
+      if (form.bannerImagePreview) URL.revokeObjectURL(form.bannerImagePreview);
+    };
+  }, [form.bannerImagePreview, form.mainImagePreview]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -150,11 +130,12 @@ export default function AddListingForm() {
   const handleFileChange = (e) => {
     const { name } = e.target;
     const file = e.target.files[0];
-
     if (file && file.size <= 1048576 && /image\/(jpeg|png)/.test(file.type)) {
+      const previewUrl = URL.createObjectURL(file);
       setForm({
         ...form,
         [name]: file,
+        [`${name}Preview`]: previewUrl,
       });
     } else {
       alert(
@@ -163,28 +144,71 @@ export default function AddListingForm() {
     }
   };
 
+  const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const response = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorText}`
+        );
+      }
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw new Error("Error uploading image: " + error.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const selectedPackageDetails = packages.find(
-      (pkg) => pkg.id === selectedPackage
-    );
-    const packagePrice = selectedPackageDetails.price;
+    try {
+      let mainImageUrl = form.mainImage;
+      let bannerImageUrl = form.bannerImage;
 
-    const response = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        packageId: selectedPackage,
-        price: packagePrice * 100,
-        ...form,
-      }),
-    });
+      if (form.mainImage instanceof File) {
+        mainImageUrl = await uploadFile(form.mainImage);
+      }
+      if (form.bannerImage instanceof File) {
+        bannerImageUrl = await uploadFile(form.bannerImage);
+      }
 
-    const session = await response.json();
-    if (session.id) {
-      stripe.redirectToCheckout({ sessionId: session.id });
+      const selectedPackageDetails = packages.find(
+        (pkg) => pkg.id === selectedPackage
+      );
+      const packagePrice = selectedPackageDetails.price;
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          packageId: selectedPackage,
+          price: packagePrice * 100,
+          ...form,
+          mainImage: mainImageUrl,
+          bannerImage: bannerImageUrl,
+        }),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorText}`
+        );
+      }
+      const session = await response.json();
+      if (session.id) {
+        stripe.redirectToCheckout({ sessionId: session.id });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred while submitting the form: " + error.message);
     }
   };
 
@@ -396,15 +420,17 @@ export default function AddListingForm() {
                   <Typography variant="caption" gutterBottom>
                     Upload your main image.
                   </Typography>
-                  {form.mainImage && (
-                    <Image
-                      src={URL.createObjectURL(form.mainImage)}
-                      alt="Main Image"
-                      width={100}
-                      height={100}
-                      style={{ objectFit: "cover", borderRadius: 5 }}
-                    />
-                  )}
+                  <Grid item xs={12} sm={6}>
+                    {form.mainImagePreview ? (
+                      <Image
+                        src={form.mainImagePreview}
+                        alt="Main Image Preview"
+                        width={200}
+                        height={200}
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : null}
+                  </Grid>
                 </Stack>
                 <Stack spacing={2}>
                   <Typography variant="subtitle1" gutterBottom>
@@ -431,15 +457,17 @@ export default function AddListingForm() {
                   <Typography variant="caption" gutterBottom>
                     Upload your banner image.
                   </Typography>
-                  {form.bannerImage && (
-                    <Image
-                      src={URL.createObjectURL(form.bannerImage)}
-                      alt="Banner Image"
-                      width={100}
-                      height={100}
-                      style={{ objectFit: "cover", borderRadius: 5 }}
-                    />
-                  )}
+                  <Grid item xs={12} sm={6}>
+                    {form.bannerImagePreview ? (
+                      <Image
+                        src={form.bannerImagePreview}
+                        alt="Banner Image Preview"
+                        width={200}
+                        height={200}
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : null}
+                  </Grid>
                 </Stack>
               </Stack>
 
