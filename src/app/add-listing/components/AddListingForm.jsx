@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   Checkbox,
+  Container,
   FormControlLabel,
   Grid,
   IconButton,
@@ -270,7 +271,7 @@ export default function AddListingForm() {
   return (
     <div>
       {formStep === 1 && (
-        <section className="pricing-table">
+        <Container alignItems="center">
           <Typography variant="h5" gutterBottom sx={{ paddingTop: 5 }}>
             Select a listing package
           </Typography>
@@ -318,7 +319,7 @@ export default function AddListingForm() {
               </Grid>
             </>
           )}
-        </section>
+        </Container>
       )}
 
       {formStep === 2 && selectedPackageDetails && (
