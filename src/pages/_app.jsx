@@ -5,7 +5,8 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import "../app/globals.css";
-import { metadata } from "../app/metadata"; // Ensure this path is correct
+import { metadata } from "../app/metadata";
+import { SessionProvider } from "next-auth/react";
 
 const theme = createTheme({
   typography: {
@@ -15,22 +16,24 @@ const theme = createTheme({
 
 export default function MyApp({ Component, pageProps }) {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Head>
-        <title>
-          {metadata.title ? String(metadata.title) : "Default Title"}
-        </title>
-        <meta
-          name="description"
-          content={
-            metadata.description
-              ? String(metadata.description)
-              : "Default description"
-          }
-        />
-      </Head>
-      <Component {...pageProps} />
-    </ThemeProvider>
+    <SessionProvider session={pageProps.session}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Head>
+          <title>
+            {metadata.title ? String(metadata.title) : "Default Title"}
+          </title>
+          <meta
+            name="description"
+            content={
+              metadata.description
+                ? String(metadata.description)
+                : "Default description"
+            }
+          />
+        </Head>
+        <Component {...pageProps} />
+      </ThemeProvider>
+    </SessionProvider>
   );
 }

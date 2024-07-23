@@ -14,6 +14,8 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useSession, signIn } from "next-auth/react";
 
 function Copyright(props) {
   return (
@@ -33,11 +35,24 @@ function Copyright(props) {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
-
 const defaultTheme = createTheme();
 
 export default function SignUp() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const addListing = searchParams.get("add-listing") === "true";
+
+  React.useEffect(() => {
+    if (status === "authenticated") {
+      if (addListing) {
+        router.push("/add-listing");
+      } else {
+        router.push("/account");
+      }
+    }
+  }, [status, addListing, router]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -59,12 +74,26 @@ export default function SignUp() {
     const result = await response.json();
     if (response.ok) {
       console.log("User created successfully", result);
-      // Redirect or show a success message
+      // Automatically sign in the user
+      await signIn("credentials", {
+        redirect: false,
+        email: payload.email,
+        password: payload.password,
+      });
+      if (addListing) {
+        router.push("/add-listing");
+      } else {
+        router.push("/account");
+      }
     } else {
       console.error("Error creating user", result);
       // Show an error message
     }
   };
+
+  if (status === "authenticated") {
+    return <p>Redirecting...</p>;
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -84,6 +113,11 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
+          {addListing && (
+            <Typography component="subtitle1" variant="subtitle1">
+              Sign up to create a listing.
+            </Typography>
+          )}
           <Typography component="subtitle1" variant="subtitle1">
             Get found by students looking to learn guitar.
           </Typography>
